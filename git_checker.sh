@@ -6,7 +6,7 @@ CONFIG="git_checker_config"
 # MAIN FUNCS:
 
 f_welcome () {
-    echo "Welcome to gitchecker version 1.0" > welcome
+    echo "Welcome to Git checker version 1.0" > welcome
     whiptail --textbox welcome 12 80
     rm welcome
 }
@@ -38,15 +38,6 @@ f_menu_setup () {
     whiptail --textbox git_checker_config  12 80
 }
 
-f_menu_normal_exit () {
-    exitstatus=$?
-    if [ $exitstatus = 0 ];  then
-        echo "Yes.Exit status was $?"
-    else
-        exit
-    fi
-}
-
 f_menu_main () {
     CURRENT_BRANCH=$(git status | grep "На ветке")
     CURRENT_BRANCH2=$(git branch | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
@@ -57,9 +48,9 @@ f_menu_main () {
     local NO="Exit"
     SELECTED_MODE=$(whiptail --title "$TITLE" --menu "$MESSAGE" --ok-button "$OK" \
     --cancel-button "$NO" 24 80 12 \
-    "1)" "Git status (Quick)" \
-    "2)" "Git status (Full)" \
-    "3)" "Git pull current branch" \
+    "1)" "Git pull current branch" \
+    "2)" "Git status (Quick)" \
+    "3)" "Git status (Full)" \
     "4)" "Git checkout $MAIN $SUBMAIN" \
     "5)" "Git fetch" \
     "6)" "Git checkout" \
@@ -79,25 +70,25 @@ f_menu_main_next () {
         echo "Yes.Exit status was $?"
         if [[ "$SELECTED_MODE" = "1)" ]]
         then
-            echo $CURRENT_BRANCH
+            git pull $MAIN $CURRENT_BRANCH2 > git_pull
+            whiptail --textbox git_pull \
+            --title "Git pull output. Use arrow, page, home & end keys. Tab toggle option" \
+            --scrolltext  24 80
+            rm git_pull
             f_menu_main
         fi
         if [[ "$SELECTED_MODE" = "2)" ]]
+        then
+            echo $CURRENT_BRANCH
+            f_menu_main
+        fi
+        if [[ "$SELECTED_MODE" = "3)" ]]
         then
             git status > git_status
             whiptail --textbox git_status \
             --title "Git status output. Use arrow, page, home & end keys. Tab toggle option" \
             --scrolltext  24 80
             rm git_status
-            f_menu_main
-        fi
-        if [[ "$SELECTED_MODE" = "3)" ]]
-        then
-            git pull $MAIN $CURRENT_BRANCH2 > git_pull
-            whiptail --textbox git_pull \
-            --title "Git pull output. Use arrow, page, home & end keys. Tab toggle option" \
-            --scrolltext  24 80
-            rm git_pull
             f_menu_main
         fi
         if [[ "$SELECTED_MODE" = "4)" ]]
@@ -123,7 +114,7 @@ f_menu_main_next () {
         fi
         if [[ "$SELECTED_MODE" = "7)" ]]
         then
-            GIT_CMD=$(whiptail --title "Run Git Command" --inputbox "Input git command" 10 60 "git status" \
+            GIT_CMD=$(whiptail --title "Run Git Command" --inputbox "Input git command" 10 60 "git log" \
             --ok-button "$YES" --cancel-button "$NO" \
             3>&1 1>&2 2>&3)
             $GIT_CMD > git_cmd_output
@@ -152,7 +143,8 @@ f_welcome
 
 if [ ! -f $CONFIG ]; then
     echo "Config file $CONFIG not found! Setup is loading.."
-    f_menu_setup	
+    f_menu_setup
+    echo "Setup completed. Please re-run git_checker"	
 else
     source git_checker_config
     f_menu_main
