@@ -41,6 +41,7 @@ f_menu_setup () {
 f_menu_main () {
     CURRENT_BRANCH=$(git status | grep "На ветке")
     CURRENT_BRANCH2=$(git branch | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+    printf '\033]0;Git checker: '$CURRENT_BRANCH2'\007\'
     local TITLE="Git checker: $CURRENT_BRANCH2"
     local MESSAGE="Current branch: $CURRENT_BRANCH\\n================================ \
     \\nCurrent Scheme:$MAIN $SUBMAIN\\nCurrent PREFIX:$PREFIX"
@@ -53,7 +54,7 @@ f_menu_main () {
     "3)" "Git status (Full)" \
     "4)" "Git checkout $MAIN $SUBMAIN" \
     "5)" "Git fetch" \
-    "6)" "Git checkout" \
+    "6)" "Git checkout ..." \
     "7)" "Git command ..." \
     "8)" "Previous branch" \
     "9)" "Change prefix for branches" \
@@ -70,7 +71,7 @@ f_menu_main_next () {
         echo "Yes.Exit status was $?"
         case "$SELECTED_MODE" in
             "1)")
-            git pull $MAIN $CURRENT_BRANCH2 > git_pull
+            git pull $MAIN $CURRENT_BRANCH2 &> git_pull
             whiptail --textbox git_pull \
             --title "Git pull output. Use arrow, page, home & end keys. Tab toggle option" \
             --scrolltext  24 80
@@ -82,7 +83,7 @@ f_menu_main_next () {
             f_menu_main
             ;;
             "3)")
-            git status > git_status
+            git status &> git_status
             whiptail --textbox git_status \
             --title "Git status output. Use arrow, page, home & end keys. Tab toggle option" \
             --scrolltext  24 80
@@ -94,7 +95,7 @@ f_menu_main_next () {
             f_menu_main
             ;;
             "5)")
-            git fetch > git_fetch
+            git fetch &> git_fetch
             whiptail --textbox git_fetch --title "Git Fetch output"  --scrolltext  24 80
             rm git_fetch
             f_menu_main
@@ -111,7 +112,7 @@ f_menu_main_next () {
             GIT_CMD=$(whiptail --title "Run Git Command" --inputbox "Input git command" 10 60 "git log" \
             --ok-button "$YES" --cancel-button "$NO" \
             3>&1 1>&2 2>&3)
-            $GIT_CMD > git_cmd_output
+            $GIT_CMD &> git_cmd_output
             whiptail --textbox git_cmd_output --title "$GIT_CMD output"  --scrolltext  24 80
             rm git_cmd_output
             f_menu_main
