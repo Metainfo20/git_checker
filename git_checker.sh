@@ -91,7 +91,10 @@ f_menu_main_next () {
             f_menu_main
             ;;
             "4)")
-            git checkout $SUBMAIN
+            git checkout $SUBMAIN &> git_checkout
+            whiptail --textbox git_checkout \
+            --title "Git checkout $SUBMAIN output. Use arrow, page, home & end keys. Tab toggle option" \
+            --scrolltext  24 80
             f_menu_main
             ;;
             "5)")
