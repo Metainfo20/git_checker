@@ -95,6 +95,7 @@ f_menu_main_next () {
             whiptail --textbox git_checkout \
             --title "Git checkout $SUBMAIN output. Use arrow, page, home & end keys. Tab toggle option" \
             --scrolltext  24 80
+            rm git_checkout
             f_menu_main
             ;;
             "5)")
@@ -108,7 +109,11 @@ f_menu_main_next () {
             --inputbox "Input branch digit" 10 60 "$PREFIX" \
             --ok-button "$YES" --cancel-button "$NO" \
             3>&1 1>&2 2>&3)
-            git checkout $BRANCH_CHECKOUT
+            git checkout $BRANCH_CHECKOUT &> git_checkout
+            whiptail --textbox git_checkout \
+            --title "Git checkout $BRANCH_CHECKOUT output. Use arrow, page, home & end keys. Tab toggle option" \
+            --scrolltext  24 80
+            rm git_checkout
             f_menu_main
             ;;
             "7)")
